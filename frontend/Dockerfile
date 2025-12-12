@@ -51,7 +51,8 @@ FROM nginx:1.25-alpine
 RUN apk add --no-cache \
     bash \
     curl \
-    jq
+    jq \
+    gettext
 
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
