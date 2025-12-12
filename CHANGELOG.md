@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.1.1...v1.2.0) (2025-12-12)
+
+### 🚀 Features
+
+- Complete Challenge 4 - Observability Dashboard with Sentry and OpenTelemetry ([6f68e1d](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/commit/6f68e1d5a4e77c28cb20e238d9614a9b641f2eca))
+
 ## 1.0.0 (2025-12-12)
 
 ### 🚀 Features
