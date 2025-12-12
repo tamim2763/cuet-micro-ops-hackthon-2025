@@ -6,12 +6,12 @@ Complete documentation of all implementations for the CUET Fest 2025 Hackathon.
 
 ## 🏆 Hackathon Challenges Completed
 
-| Challenge | | Status | Implementation |
-| --------------------- | | ------ | --------------------------------- |
-| **1. S3 Storage** | | ✅ | MinIO in Docker, presigned URLs |
-| **2. Architecture** | | ✅ | Async polling with Redis + BullMQ |
-| **3. CI/CD Pipeline** | ✅ | GitHub Actions → Docker Hub → VM |
-| **4. Observability** | | ✅ | React + Sentry + OpenTelemetry |
+| Challenge             | Status | Implementation                    |
+| --------------------- | ------ | --------------------------------- |
+| **1. S3 Storage**     | ✅     | MinIO in Docker, presigned URLs   |
+| **2. Architecture**   | ✅     | Async polling with Redis + BullMQ |
+| **3. CI/CD Pipeline** | ✅     | GitHub Actions → Docker Hub → VM  |
+| **4. Observability**  | ✅     | React + Sentry + OpenTelemetry    |
 
 ### 🌐 Live Demo URLs
 
