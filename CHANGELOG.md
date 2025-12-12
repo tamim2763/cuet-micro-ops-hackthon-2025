@@ -1,3 +1,9 @@
+## [1.3.4](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.3.3...v1.3.4) (2025-12-12)
+
+### 🐛 Bug Fixes
+
+- update nginx upstream to match compose service name ([e0eac18](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/commit/e0eac18349c6df723a3a433254ca0eedb89af709))
+
 ## [1.3.3](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.3.2...v1.3.3) (2025-12-12)
 
 ### 🐛 Bug Fixes
