@@ -92,7 +92,6 @@ jobs:
     needs: build-push
     environment:
       name: production
-      url: http://${{ secrets.VM_HOST }}:3000
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -107,8 +106,11 @@ jobs:
             # Navigate to project directory
             cd ${{ secrets.VM_PROJECT_DIR || '/opt/hackathon' }}
 
+            # Pull latest code
+            sudo git pull origin main || true
+
             # Login to Docker Hub
-            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
             # Set environment variables for compose
             export DOCKERHUB_USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
@@ -116,15 +118,15 @@ jobs:
 
             # Pull latest images
             echo "📦 Pulling latest images..."
-            docker compose -f docker/compose.registry.yml pull
+            sudo docker compose -f docker/compose.registry.yml pull
 
             # Stop old containers and start new ones
             echo "🔄 Restarting services..."
-            docker compose -f docker/compose.registry.yml up -d --remove-orphans
+            sudo docker compose -f docker/compose.registry.yml up -d --remove-orphans
 
             # Cleanup old images
             echo "🧹 Cleaning up..."
-            docker image prune -f
+            sudo docker image prune -f
 
             # Health check
             echo "❤️ Checking health..."
