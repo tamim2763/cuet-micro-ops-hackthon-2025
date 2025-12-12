@@ -1,3 +1,9 @@
+## [1.3.2](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.3.1...v1.3.2) (2025-12-12)
+
+### 🐛 Bug Fixes
+
+- remove frontend dist from git and add to gitignore ([c7cfb73](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/commit/c7cfb73c6056d117dfcff29a38ce53fc5013a423))
+
 ## [1.3.1](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.3.0...v1.3.1) (2025-12-12)
 
 ### 🐛 Bug Fixes
