@@ -1,4 +1,4 @@
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle } from "lucide-react";
 
 function ErrorLog() {
   return (
@@ -10,9 +10,12 @@ function ErrorLog() {
 
       <div className="card text-center py-12">
         <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Coming in Phase 3</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          Coming in Phase 3
+        </h3>
         <p className="text-gray-600">
-          Error log viewer with Sentry integration will be implemented in the next phase.
+          Error log viewer with Sentry integration will be implemented in the
+          next phase.
         </p>
       </div>
     </div>

@@ -18,7 +18,7 @@ This microservice simulates a **real-world file download system** where processi
 
 **Why does this matter?**
 
-When you deploy this service behind a reverse proxy (Cloudflare, nginx, AWS ALB), you'll encounter:
+When you deploy this service behnd a reverse proxy (Cloudflare, nginx, AWS ALB), you'll encounter:
 
 | Problem                 | Impact                                        |
 | ----------------------- | --------------------------------------------- |

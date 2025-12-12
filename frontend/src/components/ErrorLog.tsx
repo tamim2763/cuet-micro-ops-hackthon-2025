@@ -1,8 +1,13 @@
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle } from "lucide-react";
 export function ErrorLog() {
   const errors = [
-    { id: 1, message: 'File not found', severity: 'error', timestamp: new Date() },
-  ]
+    {
+      id: 1,
+      message: "File not found",
+      severity: "error",
+      timestamp: new Date(),
+    },
+  ];
   return (
     <div className="card">
       <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
@@ -16,9 +21,14 @@ export function ErrorLog() {
           </div>
         ) : (
           errors.map((error) => (
-            <div key={error.id} className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+            <div
+              key={error.id}
+              className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg"
+            >
               <div className="font-medium text-error">{error.message}</div>
-              <div className="text-xs text-gray-400 mt-1">{error.timestamp.toLocaleString()}</div>
+              <div className="text-xs text-gray-400 mt-1">
+                {error.timestamp.toLocaleString()}
+              </div>
             </div>
           ))
         )}
@@ -32,5 +42,5 @@ export function ErrorLog() {
         View in Sentry Dashboard →
       </a>
     </div>
-  )
+  );
 }

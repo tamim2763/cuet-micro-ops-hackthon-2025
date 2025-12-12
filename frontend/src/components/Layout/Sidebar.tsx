@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   FileDown,
@@ -6,8 +6,8 @@ import {
   Activity,
   BarChart,
   X,
-} from 'lucide-react';
-import clsx from 'clsx';
+} from "lucide-react";
+import clsx from "clsx";
 
 interface SidebarProps {
   open: boolean;
@@ -15,11 +15,11 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Download Jobs', href: '/downloads', icon: FileDown },
-  { name: 'Error Log', href: '/errors', icon: AlertCircle },
-  { name: 'Trace Viewer', href: '/traces', icon: Activity },
-  { name: 'Performance', href: '/performance', icon: BarChart },
+  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Download Jobs", href: "/downloads", icon: FileDown },
+  { name: "Error Log", href: "/errors", icon: AlertCircle },
+  { name: "Trace Viewer", href: "/traces", icon: Activity },
+  { name: "Performance", href: "/performance", icon: BarChart },
 ];
 
 export function Sidebar({ open, onClose }: SidebarProps) {
@@ -38,8 +38,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={clsx(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto',
-          open ? 'translate-x-0' : '-translate-x-full'
+          "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto",
+          open ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex flex-col h-full">
@@ -66,10 +66,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                   to={item.href}
                   onClick={onClose}
                   className={clsx(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
                     isActive
-                      ? 'bg-primary-50 text-primary-700 font-medium'
-                      : 'text-gray-700 hover:bg-gray-50'
+                      ? "bg-primary-50 text-primary-700 font-medium"
+                      : "text-gray-700 hover:bg-gray-50",
                   )}
                 >
                   <Icon className="w-5 h-5" />
@@ -84,9 +84,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             <div className="text-xs text-gray-500">
               <p className="font-semibold mb-1">Download Service UI</p>
               <p>Version 1.0.0</p>
-              <p className="mt-2">
-                Built with React, Sentry & OpenTelemetry
-              </p>
+              <p className="mt-2">Built with React, Sentry & OpenTelemetry</p>
             </div>
           </div>
         </div>

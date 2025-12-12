@@ -1,4 +1,4 @@
-import { Inbox } from 'lucide-react';
+import { Inbox } from "lucide-react";
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -10,7 +10,12 @@ interface EmptyStateProps {
   };
 }
 
-export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
+export function EmptyState({
+  icon,
+  title,
+  description,
+  action,
+}: EmptyStateProps) {
   return (
     <div className="card text-center py-12">
       {icon || <Inbox className="w-16 h-16 text-gray-400 mx-auto mb-4" />}

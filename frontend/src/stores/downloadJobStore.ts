@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import type { DownloadJob } from '@/types';
+import { create } from "zustand";
+import type { DownloadJob } from "@/types";
 
 interface DownloadJobState {
   jobs: DownloadJob[];
@@ -21,9 +21,12 @@ export const useDownloadJobStore = create<DownloadJobState>((set) => ({
   addJob: (job) => set((state) => ({ jobs: [job, ...state.jobs] })),
   updateJob: (id, updates) =>
     set((state) => ({
-      jobs: state.jobs.map((job) => (job.id === id ? { ...job, ...updates } : job)),
+      jobs: state.jobs.map((job) =>
+        job.id === id ? { ...job, ...updates } : job,
+      ),
     })),
-  removeJob: (id) => set((state) => ({ jobs: state.jobs.filter((job) => job.id !== id) })),
+  removeJob: (id) =>
+    set((state) => ({ jobs: state.jobs.filter((job) => job.id !== id) })),
   setJobs: (jobs) => set({ jobs }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),

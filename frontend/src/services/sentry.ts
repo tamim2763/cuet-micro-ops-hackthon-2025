@@ -1,18 +1,20 @@
-import * as Sentry from '@sentry/react';
+import * as Sentry from "@sentry/react";
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
-const ENVIRONMENT = import.meta.env.VITE_SENTRY_ENVIRONMENT || 'development';
-const TRACES_SAMPLE_RATE = parseFloat(import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE || '1.0');
+const ENVIRONMENT = import.meta.env.VITE_SENTRY_ENVIRONMENT || "development";
+const TRACES_SAMPLE_RATE = parseFloat(
+  import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE || "1.0",
+);
 const REPLAYS_SESSION_SAMPLE_RATE = parseFloat(
-  import.meta.env.VITE_SENTRY_REPLAYS_SESSION_SAMPLE_RATE || '0.1'
+  import.meta.env.VITE_SENTRY_REPLAYS_SESSION_SAMPLE_RATE || "0.1",
 );
 const REPLAYS_ON_ERROR_SAMPLE_RATE = parseFloat(
-  import.meta.env.VITE_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE || '1.0'
+  import.meta.env.VITE_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE || "1.0",
 );
 
 export function initSentry() {
   if (!SENTRY_DSN) {
-    console.warn('Sentry DSN not configured. Error tracking disabled.');
+    console.warn("Sentry DSN not configured. Error tracking disabled.");
     return;
   }
 
@@ -29,14 +31,14 @@ export function initSentry() {
     ],
     // Performance Monitoring
     tracesSampleRate: TRACES_SAMPLE_RATE,
-    tracePropagationTargets: ['localhost', /^https:\/\/yourserver\.io\/api/],
+    tracePropagationTargets: ["localhost", /^https:\/\/yourserver\.io\/api/],
 
     // Session Replay
     replaysSessionSampleRate: REPLAYS_SESSION_SAMPLE_RATE,
     replaysOnErrorSampleRate: REPLAYS_ON_ERROR_SAMPLE_RATE,
 
     // Release tracking
-    release: `download-service-ui@${import.meta.env.VITE_APP_VERSION || 'dev'}`,
+    release: `download-service-ui@${import.meta.env.VITE_APP_VERSION || "dev"}`,
 
     // Before send hook to add trace context
     beforeSend(event, hint) {
@@ -55,7 +57,7 @@ export function initSentry() {
     profilesSampleRate: 1.0,
   });
 
-  console.log('Sentry initialized successfully');
+  console.log("Sentry initialized successfully");
 }
 
 export function captureError(error: Error, context?: Record<string, unknown>) {
@@ -67,7 +69,10 @@ export function captureError(error: Error, context?: Record<string, unknown>) {
   });
 }
 
-export function captureMessage(message: string, level: Sentry.SeverityLevel = 'info') {
+export function captureMessage(
+  message: string,
+  level: Sentry.SeverityLevel = "info",
+) {
   Sentry.captureMessage(message, {
     level,
     tags: {
@@ -76,7 +81,11 @@ export function captureMessage(message: string, level: Sentry.SeverityLevel = 'i
   });
 }
 
-export function setUserContext(user: { id: string; email?: string; username?: string }) {
+export function setUserContext(user: {
+  id: string;
+  email?: string;
+  username?: string;
+}) {
   Sentry.setUser(user);
 }
 
@@ -94,9 +103,9 @@ export function showReportDialog(eventId?: string) {
   if (id) {
     Sentry.showReportDialog({
       eventId: id,
-      title: 'Something went wrong',
-      subtitle: 'Our team has been notified.',
-      subtitle2: 'If you would like to help, tell us what happened below.',
+      title: "Something went wrong",
+      subtitle: "Our team has been notified.",
+      subtitle2: "If you would like to help, tell us what happened below.",
     });
   }
 }

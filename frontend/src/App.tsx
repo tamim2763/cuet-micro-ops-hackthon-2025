@@ -1,11 +1,11 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { HealthStatus } from './components/HealthStatus'
-import { DownloadJobs } from './components/DownloadJobs'
-import { ErrorLog } from './components/ErrorLog'
-import { TraceViewer } from './components/TraceViewer'
-import { PerformanceMetrics } from './components/PerformanceMetrics'
-import { Activity } from 'lucide-react'
-const queryClient = new QueryClient()
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { HealthStatus } from "./components/HealthStatus";
+import { DownloadJobs } from "./components/DownloadJobs";
+import { ErrorLog } from "./components/ErrorLog";
+import { TraceViewer } from "./components/TraceViewer";
+import { PerformanceMetrics } from "./components/PerformanceMetrics";
+import { Activity } from "lucide-react";
+const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -18,19 +18,21 @@ function App() {
               Delineate Observability
             </h1>
           </div>
-          <p className="text-gray-400">Real-time monitoring, tracing, and error tracking</p>
+          <p className="text-gray-400">
+            Real-time monitoring, tracing, and error tracking
+          </p>
         </header>
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Top Row */}
           <HealthStatus />
           <PerformanceMetrics />
-          
+
           {/* Middle Row */}
           <div className="lg:col-span-2">
             <DownloadJobs />
           </div>
-          
+
           {/* Bottom Row */}
           <ErrorLog />
           <TraceViewer />
@@ -41,6 +43,6 @@ function App() {
         </footer>
       </div>
     </QueryClientProvider>
-  )
+  );
 }
-export default App
+export default App;

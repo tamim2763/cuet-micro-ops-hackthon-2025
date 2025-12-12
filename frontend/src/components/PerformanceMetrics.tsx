@@ -1,13 +1,20 @@
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { TrendingUp } from 'lucide-react'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { TrendingUp } from "lucide-react";
 export function PerformanceMetrics() {
   const data = [
-    { time: '10:00', responseTime: 120 },
-    { time: '10:05', responseTime: 150 },
-    { time: '10:10', responseTime: 180 },
-    { time: '10:15', responseTime: 140 },
-    { time: '10:20', responseTime: 160 },
-  ]
+    { time: "10:00", responseTime: 120 },
+    { time: "10:05", responseTime: 150 },
+    { time: "10:10", responseTime: 180 },
+    { time: "10:15", responseTime: 140 },
+    { time: "10:20", responseTime: 160 },
+  ];
   return (
     <div className="card">
       <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
@@ -19,9 +26,18 @@ export function PerformanceMetrics() {
           <XAxis dataKey="time" stroke="#6B7280" />
           <YAxis stroke="#6B7280" />
           <Tooltip
-            contentStyle={{ background: '#1F2937', border: 'none', borderRadius: '8px' }}
+            contentStyle={{
+              background: "#1F2937",
+              border: "none",
+              borderRadius: "8px",
+            }}
           />
-          <Line type="monotone" dataKey="responseTime" stroke="#3B82F6" strokeWidth={2} />
+          <Line
+            type="monotone"
+            dataKey="responseTime"
+            stroke="#3B82F6"
+            strokeWidth={2}
+          />
         </LineChart>
       </ResponsiveContainer>
       <div className="grid grid-cols-3 gap-4 mt-4">
@@ -39,5 +55,5 @@ export function PerformanceMetrics() {
         </div>
       </div>
     </div>
-  )
+  );
 }

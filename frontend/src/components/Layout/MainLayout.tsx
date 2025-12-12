@@ -1,9 +1,9 @@
-import { Outlet } from 'react-router-dom';
-import { Suspense, useState } from 'react';
-import { Header } from './Header';
-import { Sidebar } from './Sidebar';
-import { LoadingSpinner } from '../LoadingSpinner';
-import { useUIStore } from '@/stores/uiStore';
+import { Outlet } from "react-router-dom";
+import { Suspense, useState } from "react";
+import { Header } from "./Header";
+import { Sidebar } from "./Sidebar";
+import { LoadingSpinner } from "../LoadingSpinner";
+import { useUIStore } from "@/stores/uiStore";
 
 export function MainLayout() {
   const { sidebarOpen, setSidebarOpen } = useUIStore();

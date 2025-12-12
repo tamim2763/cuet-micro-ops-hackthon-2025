@@ -1,7 +1,13 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Download, Activity, AlertCircle, TrendingUp, BarChart } from 'lucide-react';
-import { getCurrentTraceId } from '@/services/telemetry';
-import clsx from 'clsx';
+import { Link, useLocation } from "react-router-dom";
+import {
+  Download,
+  Activity,
+  AlertCircle,
+  TrendingUp,
+  BarChart,
+} from "lucide-react";
+import { getCurrentTraceId } from "@/services/telemetry";
+import clsx from "clsx";
 
 interface HeaderProps {
   onMenuClick: () => void;

@@ -1,1 +1,1 @@
-export {} // Sentry init is in main.tsx
+export {}; // Sentry init is in main.tsx

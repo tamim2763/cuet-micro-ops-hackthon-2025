@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import type { HealthResponse } from '@/types';
+import { create } from "zustand";
+import type { HealthResponse } from "@/types";
 
 interface HealthState {
   health: HealthResponse | null;

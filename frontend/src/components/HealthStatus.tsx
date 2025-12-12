@@ -1,36 +1,43 @@
-import { useQuery } from '@tanstack/react-query'
-import { Activity, Database, Zap, CheckCircle, AlertCircle, XCircle } from 'lucide-react'
-import { api } from '../lib/api'
-import { HealthData } from '../types'
+import { useQuery } from "@tanstack/react-query";
+import {
+  Activity,
+  Database,
+  Zap,
+  CheckCircle,
+  AlertCircle,
+  XCircle,
+} from "lucide-react";
+import { api } from "../lib/api";
+import { HealthData } from "../types";
 export function HealthStatus() {
   const { data, isLoading } = useQuery({
-    queryKey: ['health'],
+    queryKey: ["health"],
     queryFn: async () => {
-      const response = await api.get<HealthData>('/health')
-      return response.data
+      const response = await api.get<HealthData>("/health");
+      return response.data;
     },
     refetchInterval: 5000,
-  })
+  });
   const getStatusIcon = (status?: string) => {
     switch (status) {
-      case 'ok':
-        return <CheckCircle className="w-5 h-5 text-success" />
-      case 'error':
-        return <XCircle className="w-5 h-5 text-error" />
+      case "ok":
+        return <CheckCircle className="w-5 h-5 text-success" />;
+      case "error":
+        return <XCircle className="w-5 h-5 text-error" />;
       default:
-        return <AlertCircle className="w-5 h-5 text-warning" />
+        return <AlertCircle className="w-5 h-5 text-warning" />;
     }
-  }
+  };
   const getStatusColor = (status?: string) => {
     switch (status) {
-      case 'healthy':
-        return 'bg-success'
-      case 'degraded':
-        return 'bg-warning'
+      case "healthy":
+        return "bg-success";
+      case "degraded":
+        return "bg-warning";
       default:
-        return 'bg-error'
+        return "bg-error";
     }
-  }
+  };
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
@@ -53,7 +60,7 @@ export function HealthStatus() {
               <Zap className="w-4 h-4" />
               API Server
             </span>
-            {getStatusIcon('ok')}
+            {getStatusIcon("ok")}
           </div>
           {/* S3 Storage */}
           <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
@@ -70,5 +77,5 @@ export function HealthStatus() {
         </div>
       )}
     </div>
-  )
+  );
 }
