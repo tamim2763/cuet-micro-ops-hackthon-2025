@@ -31,3 +31,7 @@ data/
 
 # build output
 frontend/dist/
+
+# documentation
+CHALLENGE_4_COMPLETED.md
+PRESENTATION_GUIDE.md
