@@ -5,9 +5,16 @@ import { createSpan, getCurrentTraceId } from '@/services/telemetry';
 import { captureMessage } from '@/services/sentry';
 import toast from 'react-hot-toast';
 import { useHealthStore } from '@/stores/healthStore';
+import { usePageTracking, useActionTracking } from '@/hooks/useObservability';
+import { TraceDisplay } from '@/components/TraceDisplay';
+import { openTraceInJaeger } from '@/utils/observability';
 import type { HealthResponse } from '@/types';
 
 function Dashboard() {
+  // Use observability hooks
+  usePageTracking(); // Track page views automatically
+  const trackAction = useActionTracking(); // Track user actions
+  
   const { health, setHealth, loading, setLoading, error, setError } = useHealthStore();
   const [testingSentry, setTestingSentry] = useState(false);
 
@@ -34,6 +41,7 @@ function Dashboard() {
 
   // Test Sentry integration
   const handleSentryTest = async () => {
+    trackAction('test.sentry', { trigger: 'button_click' });
     setTestingSentry(true);
     try {
       await createSpan(
@@ -54,6 +62,7 @@ function Dashboard() {
 
   // Test OpenTelemetry tracing
   const handleTracingTest = async () => {
+    trackAction('test.tracing', { trigger: 'button_click' });
     const traceId = getCurrentTraceId();
     await createSpan(
       'user.test_tracing',
@@ -64,11 +73,20 @@ function Dashboard() {
       { 'test.type': 'tracing' }
     );
 
-    const jaegerUrl = import.meta.env.VITE_JAEGER_UI_URL || 'http://localhost:16686';
     toast.success(
-      `Tracing test completed!\nTrace ID: ${traceId}\n\nView in Jaeger: ${jaegerUrl}/trace/${traceId}`,
-      { duration: 5000 }
+      `Tracing test completed!\nTrace ID: ${traceId}`,
+      { 
+        duration: 5000,
+        icon: '🔍',
+      }
     );
+    
+    // Also offer to open Jaeger
+    setTimeout(() => {
+      if (confirm('Would you like to view this trace in Jaeger?')) {
+        openTraceInJaeger(traceId);
+      }
+    }, 1000);
   };
 
   const getStatusColor = (status: string) => {
@@ -76,6 +94,7 @@ function Dashboard() {
   };
 
   const handleRefresh = () => {
+    trackAction('dashboard.refresh', { source: 'button' });
     setLoading(true);
     fetchHealth();
     toast.success('Health status refreshed');
@@ -239,10 +258,26 @@ function Dashboard() {
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-secondary"
+            onClick={() => trackAction('dashboard.open_jaeger', { source: 'button' })}
           >
             Open Jaeger UI
           </a>
         </div>
+      </div>
+
+      {/* Current Trace Display */}
+      <div className="card">
+        <h3 className="text-lg font-semibold mb-4">Current Trace Context</h3>
+        <TraceDisplay 
+          format="full"
+          showCopy={true}
+          showJaegerLink={true}
+          label="Active Trace ID"
+        />
+        <p className="text-sm text-gray-600 mt-3">
+          All actions on this page are tracked in a distributed trace. Use the trace ID to correlate 
+          frontend events with backend operations in Jaeger.
+        </p>
       </div>
 
       {/* Welcome Section */}
