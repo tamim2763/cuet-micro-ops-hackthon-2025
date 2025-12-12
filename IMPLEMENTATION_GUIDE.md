@@ -152,9 +152,11 @@ Added comprehensive CI/CD section including:
 **How It Works:**
 
 1. **Cache Key Generation:**
+
    ```yaml
    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
    ```
+
    Creates unique key: `Linux-node-a3f5b2c8d9e1f4a6b7c8d9e0f1a2b3c4`
 
 2. **Cache Behavior:**
@@ -168,18 +170,19 @@ Added comprehensive CI/CD section including:
 
 **Performance Improvement:**
 
-| Stage | Without Cache | With Cache | Improvement |
-|-------|---------------|------------|-------------|
-| Lint | 2-3 min | 30-60 sec | ⚡ 75% faster |
-| Test | 2-3 min | 1-2 min | ⚡ 50% faster |
-| Build | 4-5 min | 2-3 min | ⚡ 40% faster |
-| **Total** | **8-10 min** | **3-5 min** | **⚡ 60% faster** |
+| Stage     | Without Cache | With Cache  | Improvement       |
+| --------- | ------------- | ----------- | ----------------- |
+| Lint      | 2-3 min       | 30-60 sec   | ⚡ 75% faster     |
+| Test      | 2-3 min       | 1-2 min     | ⚡ 50% faster     |
+| Build     | 4-5 min       | 2-3 min     | ⚡ 40% faster     |
+| **Total** | **8-10 min**  | **3-5 min** | **⚡ 60% faster** |
 
 ### Key Concepts
 
 #### npm ci vs npm install
 
 **`npm ci` (Used in CI):**
+
 - Deletes `node_modules/` first
 - Installs exact versions from `package-lock.json`
 - Fails if package.json and package-lock.json are out of sync
@@ -187,6 +190,7 @@ Added comprehensive CI/CD section including:
 - ✅ **Use in CI:** Always
 
 **`npm install` (Local Development):**
+
 - Updates `package-lock.json` if needed
 - May install different versions
 - ❌ **Use in CI:** Never
@@ -194,15 +198,15 @@ Added comprehensive CI/CD section including:
 #### YAML Indentation Rules
 
 ```yaml
-jobs:                    # 0 spaces
-  lint:                  # 2 spaces - job name
-    name: Lint           # 4 spaces - job properties
-    runs-on: ubuntu      # 4 spaces
-    steps:               # 4 spaces
-      - name: Step 1     # 6 spaces - list item
-        uses: action     # 8 spaces - step properties
-        with:            # 8 spaces
-          key: value     # 10 spaces
+jobs: # 0 spaces
+  lint: # 2 spaces - job name
+    name: Lint # 4 spaces - job properties
+    runs-on: ubuntu # 4 spaces
+    steps: # 4 spaces
+      - name: Step 1 # 6 spaces - list item
+        uses: action # 8 spaces - step properties
+        with: # 8 spaces
+          key: value # 10 spaces
 ```
 
 ---
@@ -233,13 +237,13 @@ Added 5 new security-related npm scripts:
 
 **Script Explanations:**
 
-| Script | Purpose | When to Use |
-|--------|---------|-------------|
-| `security:audit` | Check for moderate+ vulnerabilities in all deps | Before pushing code |
-| `security:audit:fix` | Auto-fix vulnerable dependencies | After finding vulnerabilities |
-| `security:audit:prod` | Stricter check (high+ only) for production deps | Before production deployment |
-| `security:check` | Complete security validation | In pre-commit hooks |
-| `security:fix` | Fix security + code quality issues | Quick cleanup |
+| Script                | Purpose                                         | When to Use                   |
+| --------------------- | ----------------------------------------------- | ----------------------------- |
+| `security:audit`      | Check for moderate+ vulnerabilities in all deps | Before pushing code           |
+| `security:audit:fix`  | Auto-fix vulnerable dependencies                | After finding vulnerabilities |
+| `security:audit:prod` | Stricter check (high+ only) for production deps | Before production deployment  |
+| `security:check`      | Complete security validation                    | In pre-commit hooks           |
+| `security:fix`        | Fix security + code quality issues              | Quick cleanup                 |
 
 #### 2. Security Documentation (README.md)
 
@@ -299,12 +303,12 @@ npm outdated
 
 **Vulnerability Response Policy:**
 
-| Severity | Response Time | Action |
-|----------|---------------|--------|
+| Severity     | Response Time   | Action                        |
+| ------------ | --------------- | ----------------------------- |
 | **CRITICAL** | Immediate (24h) | Hotfix + emergency deployment |
-| **HIGH** | 7 days | Include in next release |
-| **MEDIUM** | 30 days | Planned maintenance |
-| **LOW** | Next cycle | Backlog item |
+| **HIGH**     | 7 days          | Include in next release       |
+| **MEDIUM**   | 30 days         | Planned maintenance           |
+| **LOW**      | Next cycle      | Backlog item                  |
 
 #### 3. Testing Security Scripts
 
@@ -380,11 +384,13 @@ jobs:
 **Setup Instructions:**
 
 1. **Navigate to Branch Settings:**
+
    ```
    Repository → Settings → Branches → Add rule
    ```
 
 2. **Branch Name Pattern:**
+
    ```
    main
    ```
@@ -413,12 +419,12 @@ jobs:
 
 **What Branch Protection Does:**
 
-| Action | Before Protection | After Protection |
-|--------|-------------------|------------------|
-| **Push to main** | ✅ Anyone can push | ❌ Must use PR |
-| **Merge failing PR** | ✅ Can merge | ❌ Cannot merge |
-| **Force push** | ✅ Allowed | ❌ Blocked |
-| **Merge with conflicts** | ⚠️ Possible | ❌ Blocked |
+| Action                   | Before Protection  | After Protection |
+| ------------------------ | ------------------ | ---------------- |
+| **Push to main**         | ✅ Anyone can push | ❌ Must use PR   |
+| **Merge failing PR**     | ✅ Can merge       | ❌ Cannot merge  |
+| **Force push**           | ✅ Allowed         | ❌ Blocked       |
+| **Merge with conflicts** | ⚠️ Possible        | ❌ Blocked       |
 
 **Expected Behavior After Setup:**
 
@@ -430,7 +436,7 @@ The following requirements must be satisfied before merging:
 
 ❌ Required status checks must pass
    ⏳ Lint — Pending
-   ⏳ E2E Tests — Pending  
+   ⏳ E2E Tests — Pending
    ⏳ Build Docker Image — Pending
 
 ❌ Branch must be up to date before merging
@@ -452,9 +458,11 @@ All checks have passed
 **Verifying Branch Protection:**
 
 1. Try to push directly to `main`:
+
    ```bash
    git push origin main
    ```
+
    Expected: ❌ `remote: error: GH006: Protected branch update failed`
 
 2. Create a PR with failing tests
@@ -472,6 +480,7 @@ All checks have passed
 **Issue:** "I don't have admin access"
 
 **Solution:** Ask the repository owner to:
+
 - Grant you admin role: Settings → Manage access → Change role to "Admin"
 - Or have them set up the branch protection rules
 
@@ -480,6 +489,7 @@ All checks have passed
 ## Complete Feature List
 
 ### ✅ Phase 1: CI/CD Pipeline
+
 - [x] GitHub Actions CI workflow (`.github/workflows/ci.yml`)
 - [x] Three-stage pipeline (Lint → Test → Build)
 - [x] Dependency caching (~60% faster builds)
@@ -490,6 +500,7 @@ All checks have passed
 - [x] Local testing instructions
 
 ### ✅ Phase 2: Security
+
 - [x] Security audit scripts in `package.json`
 - [x] Security documentation in README
 - [x] Manual scanning guides (npm audit, Trivy)
@@ -497,11 +508,13 @@ All checks have passed
 - [x] Security best practices documentation
 
 ### ✅ Phase 3: Automation & Protection
+
 - [x] Auto-merge workflow (`.github/workflows/auto-merge.yml`)
 - [x] Branch protection documentation
 - [ ] Branch protection rules enabled (manual setup required)
 
 ### 📊 Bonus Features Implemented
+
 - ✅ CI badge in README
 - ✅ Fail-fast pipeline execution
 - ✅ Comprehensive troubleshooting guides
@@ -546,6 +559,7 @@ npm run security:audit
 ```
 
 Expected output:
+
 ```
 found 0 vulnerabilities
 ```
@@ -557,6 +571,7 @@ npm run security:check
 ```
 
 Expected output:
+
 ```
 found 0 vulnerabilities
 Security check passed
@@ -569,6 +584,7 @@ npm run 2>&1 | grep security
 ```
 
 Expected output:
+
 ```
 security:audit
 security:audit:fix
@@ -607,6 +623,7 @@ security:fix
 ### Issue 1: CI Pipeline Fails - Formatting Errors
 
 **Error:**
+
 ```
 [warn] README.md
 [warn] Code style issues found. Run Prettier with --write to fix.
@@ -614,6 +631,7 @@ Error: Process completed with exit code 1.
 ```
 
 **Solution:**
+
 ```bash
 npm run format
 git add .
@@ -624,11 +642,13 @@ git push
 ### Issue 2: Security Audit Finds Vulnerabilities
 
 **Error:**
+
 ```
 found 3 vulnerabilities (1 moderate, 2 high)
 ```
 
 **Solution:**
+
 ```bash
 # Try automatic fix
 npm run security:audit:fix
@@ -652,11 +672,13 @@ git push
 **Solution:**
 
 1. Check `package-lock.json` is committed:
+
    ```bash
    git ls-files | grep package-lock.json
    ```
 
 2. Verify cache key in workflow:
+
    ```yaml
    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
    ```
@@ -688,12 +710,14 @@ git push
 **Solution:**
 
 Ask repository owner (`tamim2763`) to:
+
 1. Grant you admin access: Settings → Collaborators → Change role to "Admin"
 2. Or have them enable branch protection rules
 
 ### Issue 6: Docker Build Fails in CI
 
 **Error:**
+
 ```
 ERROR: failed to solve: failed to read dockerfile
 ```
@@ -701,8 +725,9 @@ ERROR: failed to solve: failed to read dockerfile
 **Solution:**
 
 Check Dockerfile path in `.github/workflows/ci.yml`:
+
 ```yaml
-file: docker/Dockerfile.prod  # Must match actual location
+file: docker/Dockerfile.prod # Must match actual location
 ```
 
 ---
@@ -711,12 +736,12 @@ file: docker/Dockerfile.prod  # Must match actual location
 
 ### Build Times
 
-| Metric | First Run (No Cache) | With Cache | Improvement |
-|--------|---------------------|------------|-------------|
-| Lint Stage | 2-3 min | 30-60 sec | ⚡ 75% |
-| Test Stage | 2-3 min | 1-2 min | ⚡ 50% |
-| Build Stage | 4-5 min | 2-3 min | ⚡ 40% |
-| **Total Pipeline** | **8-10 min** | **3-5 min** | **⚡ 60%** |
+| Metric             | First Run (No Cache) | With Cache  | Improvement |
+| ------------------ | -------------------- | ----------- | ----------- |
+| Lint Stage         | 2-3 min              | 30-60 sec   | ⚡ 75%      |
+| Test Stage         | 2-3 min              | 1-2 min     | ⚡ 50%      |
+| Build Stage        | 4-5 min              | 2-3 min     | ⚡ 40%      |
+| **Total Pipeline** | **8-10 min**         | **3-5 min** | **⚡ 60%**  |
 
 ### Cache Statistics
 
@@ -729,16 +754,19 @@ file: docker/Dockerfile.prod  # Must match actual location
 ### Resource Usage
 
 **Lint Job:**
+
 - CPU: 1-2 cores
 - Memory: 512 MB - 1 GB
 - Disk: 2-3 GB
 
 **Test Job:**
+
 - CPU: 1-2 cores
 - Memory: 1-2 GB
 - Disk: 2-3 GB
 
 **Build Job:**
+
 - CPU: 2-4 cores
 - Memory: 3-4 GB
 - Disk: 8-10 GB
@@ -776,16 +804,19 @@ file: docker/Dockerfile.prod  # Must match actual location
 ### What Was Accomplished
 
 **Phase 1 - CI/CD Pipeline:**
+
 - ✅ Complete GitHub Actions workflow with 3 stages
 - ✅ Dependency caching (60% faster builds)
 - ✅ Comprehensive CI/CD documentation
 
 **Phase 2 - Security:**
+
 - ✅ 5 security npm scripts added
 - ✅ Security documentation and best practices
 - ✅ Manual scanning guides
 
 **Phase 3 - Automation:**
+
 - ✅ Auto-merge workflow for labeled PRs
 - ✅ Branch protection setup documentation
 
@@ -823,12 +854,14 @@ file: docker/Dockerfile.prod  # Must match actual location
 ## Resources
 
 ### Official Documentation
+
 - [GitHub Actions](https://docs.github.com/en/actions)
 - [GitHub Actions Marketplace](https://github.com/marketplace?type=actions)
 - [Branch Protection Rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches)
 - [Docker Buildx](https://docs.docker.com/buildx/working-with-buildx/)
 
 ### Security Resources
+
 - [npm Security Advisories](https://github.com/advisories)
 - [Snyk Vulnerability Database](https://snyk.io/vuln)
 - [CVE Database](https://cve.mitre.org)
@@ -836,6 +869,7 @@ file: docker/Dockerfile.prod  # Must match actual location
 - [OWASP Top 10](https://owasp.org/www-project-top-ten)
 
 ### Learning Resources
+
 - [GitHub Actions Tutorial](https://learn.microsoft.com/en-us/training/modules/github-actions-automate-tasks/)
 - [CI/CD Best Practices](https://www.atlassian.com/continuous-delivery/ci-vs-ci-vs-cd)
 - [YAML Tutorial](https://learnxinyminutes.com/docs/yaml/)
