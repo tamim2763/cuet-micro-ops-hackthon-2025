@@ -16,6 +16,7 @@ concurrency:
 
 env:
   DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/delineate-hackathon
+  DOCKER_IMAGE_FRONTEND: ${{ secrets.DOCKERHUB_USERNAME }}/delineate-frontend
   DOCKER_TAG: ${{ github.sha }}
 
 jobs:
@@ -47,9 +48,9 @@ jobs:
           S3_BUCKET_NAME: ""
           S3_FORCE_PATH_STYLE: "true"
 
-  # Build and push Docker image
+  # Build and push Docker images (backend + frontend)
   build-push:
-    name: Build & Push Docker Image
+    name: Build & Push Docker Images
     runs-on: ubuntu-24.04
     needs: test
     outputs:
@@ -67,7 +68,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      # Backend image
+      - name: Build and push Backend
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -78,12 +80,29 @@ jobs:
             ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          # Build args for better caching
           build-args: |
             BUILDKIT_INLINE_CACHE=1
 
+      # Frontend image
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: frontend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE_FRONTEND }}:latest
+            ${{ env.DOCKER_IMAGE_FRONTEND }}:${{ env.DOCKER_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VITE_API_BASE_URL=http://localhost:3000
+            VITE_SENTRY_ENVIRONMENT=production
+
       - name: Image digest
-        run: echo "Image pushed with tag ${{ env.DOCKER_TAG }}"
+        run: |
+          echo "Backend image pushed with tag ${{ env.DOCKER_TAG }}"
+          echo "Frontend image pushed with tag ${{ env.DOCKER_TAG }}"
 
   # Deploy to VM via SSH
   deploy:
