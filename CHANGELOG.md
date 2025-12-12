@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.0.1...v1.0.2) (2025-12-12)
+
+### 🐛 Bug Fixes
+
+- add sudo and git pull to CD workflow ([6e50e1c](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/commit/6e50e1c9130360a3465df1a1f07ada052ca4d5a6))
+
 ## [1.0.1](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.0.0...v1.0.1) (2025-12-12)
 
 ### 🐛 Bug Fixes
