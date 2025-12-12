@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.3.0...v1.3.1) (2025-12-12)
+
+### 🐛 Bug Fixes
+
+- add missing frontend dependencies and path alias config ([375f80a](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/commit/375f80a25b4871a5cf27709aa1e9b1bfdfb7f576))
+
 ## [1.3.0](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.2.0...v1.3.0) (2025-12-12)
 
 ### 🚀 Features
