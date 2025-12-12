@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.0.0...v1.0.1) (2025-12-12)
+
+### 🐛 Bug Fixes
+
+- skip husky in production build ([ae1d0e6](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/commit/ae1d0e6d42a4ef4a01a291dac731462629ec115e))
+
 ## 1.0.0 (2025-12-12)
 
 ### 🚀 Features
