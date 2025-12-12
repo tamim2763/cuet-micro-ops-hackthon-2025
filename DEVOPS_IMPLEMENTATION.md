@@ -16,18 +16,6 @@ Complete documentation of all implementations for the CUET Fest 2025 Hackathon p
 
 ---
 
-## Hackathon Challenges Completed
-
-| Challenge            | Points    | Status | Key Implementation                        |
-| -------------------- | --------- | ------ | ----------------------------------------- |
-| **1. S3 Storage**    | 15/15     | ✅     | MinIO integration in Docker Compose       |
-| **2. Architecture**  | 15/15     | ✅     | Async polling pattern with Redis + BullMQ |
-| **3. CI/CD**         | 10/10     | ✅     | GitHub Actions + Docker Hub + SSH Deploy  |
-| **4. Observability** | 10/10     | ✅     | React + Sentry + OpenTelemetry            |
-| **Total**            | **50/50** | 🎉     |                                           |
-
----
-
 ## Backend Security Features
 
 All security features are implemented in `src/index.ts`:
