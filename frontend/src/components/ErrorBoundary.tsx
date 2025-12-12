@@ -2,6 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import * as Sentry from '@sentry/react';
 import { showReportDialog, captureError } from '@/services/sentry';
 import { getCurrentTraceId } from '@/services/telemetry';
+import { openTraceInJaeger, getJaegerTraceUrl, formatTraceId, copyTraceId } from '@/utils/observability';
 import { AlertCircle } from 'lucide-react';
 
 interface Props {
@@ -14,6 +15,7 @@ interface State {
   error: Error | null;
   errorInfo: ErrorInfo | null;
   traceId?: string;
+  copied?: boolean;
 }
 
 class ErrorBoundary extends Component<Props, State> {
@@ -24,6 +26,7 @@ class ErrorBoundary extends Component<Props, State> {
       error: null,
       errorInfo: null,
       traceId: undefined,
+      copied: false,
     };
   }
 
@@ -61,7 +64,20 @@ class ErrorBoundary extends Component<Props, State> {
       error: null,
       errorInfo: null,
       traceId: undefined,
+      copied: false,
     });
+  };
+  
+  handleCopyTraceId = async () => {
+    const success = await copyTraceId(this.state.traceId);
+    if (success) {
+      this.setState({ copied: true });
+      setTimeout(() => this.setState({ copied: false }), 2000);
+    }
+  };
+  
+  handleOpenJaeger = () => {
+    openTraceInJaeger(this.state.traceId);
   };
 
   render() {
@@ -95,10 +111,29 @@ class ErrorBoundary extends Component<Props, State> {
 
               {this.state.traceId && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm font-semibold text-blue-800 mb-2">Trace ID:</p>
-                  <p className="text-sm text-blue-700 font-mono break-all">{this.state.traceId}</p>
-                  <p className="text-xs text-blue-600 mt-2">
-                    Use this ID when contacting support for faster assistance.
+                  <p className="text-sm font-semibold text-blue-800 mb-2">Distributed Trace ID:</p>
+                  <div className="flex items-center gap-2 mb-3">
+                    <code className="flex-1 text-sm text-blue-700 font-mono break-all bg-blue-100 px-3 py-2 rounded">
+                      {formatTraceId(this.state.traceId)}
+                    </code>
+                  </div>
+                  <div className="flex gap-2 mb-2">
+                    <button
+                      onClick={this.handleCopyTraceId}
+                      className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                    >
+                      {this.state.copied ? '✓ Copied!' : '📋 Copy'}
+                    </button>
+                    <button
+                      onClick={this.handleOpenJaeger}
+                      className="px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                    >
+                      🔍 View in Jaeger
+                    </button>
+                  </div>
+                  <p className="text-xs text-blue-600">
+                    Use this trace ID to correlate frontend errors with backend logs and traces.
+                    Click "View in Jaeger" to see the complete distributed trace.
                   </p>
                 </div>
               )}
