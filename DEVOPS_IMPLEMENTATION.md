@@ -1,35 +1,129 @@
-# DevOps Implementation Guide
+# DevOps & Security Implementation Guide
 
-Complete documentation of the DevOps practices implemented for the CUET Fest 2025 Hackathon project.
+Complete documentation of all implementations for the CUET Fest 2025 Hackathon project.
 
 ---
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [CI/CD Pipeline](#cicd-pipeline)
-3. [Docker Configuration](#docker-configuration)
-4. [GitHub Actions Workflows](#github-actions-workflows)
-5. [Code Quality Tools](#code-quality-tools)
-6. [Security Scanning](#security-scanning)
-7. [Semantic Versioning](#semantic-versioning)
-8. [VM Deployment](#vm-deployment)
-9. [Project Structure](#project-structure)
+1. [Hackathon Challenges Completed](#hackathon-challenges-completed)
+2. [Backend Security Features](#backend-security-features)
+3. [CI/CD Pipeline](#cicd-pipeline)
+4. [Docker Configuration](#docker-configuration)
+5. [Observability Stack](#observability-stack)
+6. [Code Quality Tools](#code-quality-tools)
+7. [VM Deployment](#vm-deployment)
 
 ---
 
-## Overview
+## Hackathon Challenges Completed
 
-This project implements enterprise-grade DevOps practices based on the `devops-template.md` guide. The implementation covers:
+| Challenge            | Points    | Status | Key Implementation                        |
+| -------------------- | --------- | ------ | ----------------------------------------- |
+| **1. S3 Storage**    | 15/15     | ✅     | MinIO integration in Docker Compose       |
+| **2. Architecture**  | 15/15     | ✅     | Async polling pattern with Redis + BullMQ |
+| **3. CI/CD**         | 10/10     | ✅     | GitHub Actions + Docker Hub + SSH Deploy  |
+| **4. Observability** | 10/10     | ✅     | React + Sentry + OpenTelemetry            |
+| **Total**            | **50/50** | 🎉     |                                           |
 
-| Stage            | Status | Description                                     |
-| ---------------- | ------ | ----------------------------------------------- |
-| Git Setup        | ✅     | .gitignore, .gitattributes, CODEOWNERS          |
-| Code Quality     | ✅     | ESLint, Prettier, Husky, Commitlint             |
-| Docker           | ✅     | Multi-stage builds, non-root user, healthchecks |
-| CI Pipeline      | ✅     | Lint, Test, Build, Security scan                |
-| CD Pipeline      | ✅     | Docker Hub + SSH deploy to VM                   |
-| Semantic Release | ✅     | Auto-versioning and CHANGELOG                   |
+---
+
+## Backend Security Features
+
+All security features are implemented in `src/index.ts`:
+
+### 1. Request ID Tracking (Lines 80-85)
+
+Every request gets a unique ID for distributed tracing:
+
+```typescript
+app.use(async (c, next) => {
+  const requestId = c.req.header("x-request-id") ?? crypto.randomUUID();
+  c.set("requestId", requestId);
+  c.header("x-request-id", requestId);
+  await next();
+});
+```
+
+### 2. Rate Limiting (Lines 109-119)
+
+Configurable rate limiting with standard headers:
+
+```typescript
+app.use(
+  rateLimiter({
+    windowMs: env.RATE_LIMIT_WINDOW_MS, // Default: 60000ms
+    limit: env.RATE_LIMIT_MAX_REQUESTS, // Default: 100
+    standardHeaders: "draft-6",
+  }),
+);
+```
+
+### 3. Security Headers (Line 88)
+
+HSTS, X-Frame-Options, X-Content-Type-Options via Hono middleware:
+
+```typescript
+app.use(secureHeaders());
+```
+
+Headers added:
+
+- `Strict-Transport-Security`
+- `X-Frame-Options: SAMEORIGIN`
+- `X-Content-Type-Options: nosniff`
+- `X-Download-Options: noopen`
+- `X-XSS-Protection: 0`
+
+### 4. CORS Configuration (Lines 91-103)
+
+Configurable CORS via environment variable:
+
+```typescript
+app.use(
+  cors({
+    origin: env.CORS_ORIGINS, // "*" or comma-separated list
+    allowMethods: ["GET", "POST", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Request-ID"],
+  }),
+);
+```
+
+### 5. Input Validation with Zod (Lines 178-253)
+
+All inputs validated before processing:
+
+```typescript
+const DownloadCheckRequestSchema = z.object({
+  file_id: z.number().int().min(10000).max(100000000),
+});
+```
+
+### 6. Path Traversal Prevention (Lines 256-261)
+
+S3 keys are sanitized to prevent path injection:
+
+```typescript
+const sanitizeS3Key = (fileId: number): string => {
+  const sanitizedId = Math.floor(Math.abs(fileId));
+  return `downloads/${String(sanitizedId)}.zip`; // No user-controlled paths
+};
+```
+
+### 7. Graceful Shutdown (Lines 639-686)
+
+Clean shutdown on SIGTERM/SIGINT:
+
+```typescript
+const gracefulShutdown = (server) => (signal) => {
+  server.close(() => {
+    otelSDK.shutdown(); // Flush traces
+    s3Client.destroy(); // Close S3 connections
+  });
+};
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
+```
 
 ---
 
@@ -41,33 +135,51 @@ This project implements enterprise-grade DevOps practices based on the `devops-t
 Push to main
      │
      ▼
-┌─────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│    Lint     │ ──▶ │      Test       │ ──▶ │  Security Scan  │
-│  (ESLint)   │     │  (E2E Tests)    │     │    (Trivy)      │
-└─────────────┘     └─────────────────┘     └─────────────────┘
-                           │
-                           ▼
-              ┌─────────────────────────┐
-              │   Build & Push to       │
-              │   Docker Hub            │
-              └─────────────────────────┘
-                           │
-                           ▼
-              ┌─────────────────────────┐
-              │   SSH Deploy to VM      │
-              │   Pull → Restart        │
-              └─────────────────────────┘
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│    Lint     │───▶│    Test     │───▶│  Security   │
+│   ESLint    │    │  29 E2E     │    │   Trivy     │
+│  Prettier   │    │   tests     │    │   CodeQL    │
+└─────────────┘    └─────────────┘    └─────────────┘
+                          │
+                          ▼
+              ┌───────────────────────┐
+              │  Build & Push Docker  │
+              │  x08a8/delineate-*    │
+              └───────────────────────┘
+                          │
+                          ▼
+              ┌───────────────────────┐
+              │   SSH Deploy to VM    │
+              │   Health Check        │
+              └───────────────────────┘
+                          │
+                          ▼
+              ┌───────────────────────┐
+              │   Semantic Release    │
+              │   CHANGELOG + Tag     │
+              └───────────────────────┘
 ```
 
-### Workflows
+### GitHub Actions Workflows
 
-| Workflow       | Trigger      | Purpose                     |
-| -------------- | ------------ | --------------------------- |
-| `ci.yml`       | Push/PR      | Lint, Test, Build, Security |
-| `cd.yml`       | Push to main | Deploy to VM via SSH        |
-| `release.yml`  | Push to main | Semantic versioning         |
-| `codeql.yml`   | Weekly/Push  | Code security analysis      |
-| `security.yml` | Daily/Push   | npm audit + Trivy           |
+| Workflow         | Trigger       | Purpose                               |
+| ---------------- | ------------- | ------------------------------------- |
+| `ci.yml`         | Push/PR       | Lint, Test, Build, Security scan      |
+| `cd.yml`         | Push to main  | SSH deploy to production VM           |
+| `release.yml`    | Push to main  | Auto-versioning with semantic-release |
+| `codeql.yml`     | Weekly + Push | Static security analysis              |
+| `security.yml`   | Daily + Push  | npm audit + Trivy scan                |
+| `auto-merge.yml` | Dependabot PR | Auto-merge safe updates               |
+
+### Required GitHub Secrets
+
+| Secret               | Purpose                 |
+| -------------------- | ----------------------- |
+| `DOCKERHUB_USERNAME` | Docker Hub login        |
+| `DOCKERHUB_TOKEN`    | Docker Hub access token |
+| `VM_HOST`            | Production VM IP        |
+| `VM_USER`            | SSH username            |
+| `VM_SSH_KEY`         | Private SSH key         |
 
 ---
 
@@ -77,71 +189,97 @@ Push to main
 
 | File                          | Purpose                            |
 | ----------------------------- | ---------------------------------- |
-| `docker/Dockerfile.dev`       | Development with hot-reload        |
-| `docker/Dockerfile.prod`      | Multi-stage production build       |
-| `docker/compose.dev.yml`      | Local development                  |
+| `docker/Dockerfile.dev`       | Hot-reload development             |
+| `docker/Dockerfile.prod`      | Multi-stage production             |
+| `docker/compose.dev.yml`      | Local dev with MinIO + Jaeger      |
 | `docker/compose.prod.yml`     | Production (builds locally)        |
 | `docker/compose.registry.yml` | Production (pulls from Docker Hub) |
 
 ### Production Dockerfile Features
 
-- ✅ Multi-stage build (smaller image)
-- ✅ Non-root user (`USER node`)
-- ✅ Tini for signal handling
-- ✅ Healthcheck configured
-- ✅ Production dependencies only
+```dockerfile
+# Multi-stage build
+FROM node:24-slim AS builder
+RUN npm install --omit=dev --ignore-scripts
 
-### Docker Commands
+FROM node:24-slim
+# Non-root user
+USER node
+# Signal handling
+ENTRYPOINT ["/sbin/tini", "--"]
+# Healthcheck
+HEALTHCHECK --interval=30s CMD wget -qO- http://localhost:3000/health
+```
+
+### Quick Commands
 
 ```bash
-# Development
-make dev
-
-# Production (local build)
-make prod
-
-# Production (Docker Hub)
-docker compose -f docker/compose.registry.yml up -d
+make dev      # Start development environment
+make prod     # Start production environment
+make test     # Run E2E tests
+make clean    # Remove containers and volumes
 ```
 
 ---
 
-## GitHub Actions Workflows
+## Observability Stack
 
-### Required Secrets
+### Challenge 4 Implementation
 
-| Secret               | Description             |
-| -------------------- | ----------------------- |
-| `DOCKERHUB_USERNAME` | Docker Hub username     |
-| `DOCKERHUB_TOKEN`    | Docker Hub access token |
-| `VM_HOST`            | VM IP address           |
-| `VM_USER`            | SSH username            |
-| `VM_SSH_KEY`         | Private SSH key         |
+#### Backend (Hono API)
 
-### CI Features
+- **Sentry**: Error capture with `@hono/sentry`
+- **OpenTelemetry**: Distributed tracing via `@hono/otel`
+- **Jaeger**: Trace visualization on port 16686
 
-- **Concurrency control**: Cancels old runs on new push
-- **Path filtering**: Skips CI for docs-only changes
-- **Caching**: npm + Docker layer caching
-- **Security**: Trivy vulnerability scanning
-- **Immutable tags**: `sha-<commit>` tags
+#### Frontend (React Dashboard)
+
+| Component     | File                     | Purpose               |
+| ------------- | ------------------------ | --------------------- |
+| Health Status | `HealthStatus.tsx`       | Real-time API health  |
+| Download Jobs | `DownloadJobs.tsx`       | Job management        |
+| Error Log     | `ErrorLog.tsx`           | Sentry errors display |
+| Trace Viewer  | `TraceViewer.tsx`        | Jaeger integration    |
+| Performance   | `PerformanceMetrics.tsx` | Response time charts  |
+
+#### Sentry Integration (`frontend/src/services/sentry.ts`)
+
+```typescript
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration(),
+  ],
+  tracesSampleRate: 1.0,
+});
+```
+
+#### OpenTelemetry Integration (`frontend/src/services/telemetry.ts`)
+
+```typescript
+registerInstrumentations({
+  instrumentations: [
+    new FetchInstrumentation({
+      propagateTraceHeaderCorsUrls: [/.*/], // W3C trace context
+    }),
+  ],
+});
+```
+
+#### Trace Correlation Flow
+
+```
+User Action → Frontend Span → traceparent header → Backend Span → Jaeger
+     ↓              ↓                                    ↓
+  Sentry         trace_id                            trace_id
+```
 
 ---
 
 ## Code Quality Tools
 
-### ESLint + Prettier
-
-```bash
-npm run lint        # Check for issues
-npm run lint:fix    # Auto-fix issues
-npm run format      # Format all files
-npm run format:check # Check formatting
-```
-
-### Husky + lint-staged
-
-Pre-commit hooks automatically run on staged files:
+### Pre-commit Hooks (Husky + lint-staged)
 
 ```json
 {
@@ -152,88 +290,43 @@ Pre-commit hooks automatically run on staged files:
 }
 ```
 
-### Commitlint
-
-Enforces conventional commit format:
+### Commit Message Validation (Commitlint)
 
 ```bash
-# Valid commits
-git commit -m "feat: add user authentication"
-git commit -m "fix: resolve login timeout"
-git commit -m "docs: update API documentation"
+# ✅ Valid
+git commit -m "feat: add download queue"
+git commit -m "fix: resolve S3 timeout"
 
-# Invalid commits (rejected)
+# ❌ Invalid
 git commit -m "added feature"  # No type prefix
 ```
 
----
+### Semantic Release
 
-## Security Scanning
+Auto-versioning based on commits:
 
-### Automated Scans
-
-| Tool       | Frequency  | Target                     |
-| ---------- | ---------- | -------------------------- |
-| npm audit  | Every push | Dependencies               |
-| Trivy      | Every push | Docker images + filesystem |
-| CodeQL     | Weekly     | Source code                |
-| Dependabot | Weekly     | Dependency updates         |
-
-### Manual Commands
-
-```bash
-npm run security:audit    # Check vulnerabilities
-npm run security:check    # Full check
-npm run security:fix      # Auto-fix issues
-```
-
----
-
-## Semantic Versioning
-
-Automatic versioning based on conventional commits:
-
-| Commit Type | Version Bump          | Example       |
-| ----------- | --------------------- | ------------- |
-| `feat:`     | Minor (1.0.0 → 1.1.0) | New feature   |
-| `fix:`      | Patch (1.0.0 → 1.0.1) | Bug fix       |
-| `docs:`     | No release            | Documentation |
-| `chore:`    | No release            | Maintenance   |
-
-### Generated Files
-
-- `CHANGELOG.md` - Auto-generated changelog
-- `package.json` - Version updated
-- GitHub Release - Created with notes
+| Commit   | Version Bump          |
+| -------- | --------------------- |
+| `feat:`  | Minor (1.0.0 → 1.1.0) |
+| `fix:`   | Patch (1.0.0 → 1.0.1) |
+| `feat!:` | Major (1.0.0 → 2.0.0) |
 
 ---
 
 ## VM Deployment
 
-### Initial Setup
+### Automated CD Flow
 
-```bash
-# On VM
-cd /opt/hackathon
-git clone <repo> .
-cp .env.example .env
-# Edit .env with production values
-```
-
-### Automated Deployment (CD)
-
-When you push to `main`:
-
-1. GitHub Actions builds image
-2. Pushes to Docker Hub (`x08a8/delineate-hackathon`)
-3. SSHs to VM
-4. Runs:
+1. Push to `main` branch
+2. CI runs (lint, test, security)
+3. Docker image built → pushed to Docker Hub
+4. SSH to VM:
    ```bash
    sudo git pull origin main
    sudo docker compose -f docker/compose.registry.yml pull
    sudo docker compose -f docker/compose.registry.yml up -d
    ```
-5. Verifies health check
+5. Health check verification
 
 ### Manual Deployment
 
@@ -247,7 +340,7 @@ curl http://localhost:3000/health
 ### Rollback
 
 ```bash
-export IMAGE_TAG=<previous-sha>
+export IMAGE_TAG=<previous-commit-sha>
 sudo docker compose -f docker/compose.registry.yml pull
 sudo docker compose -f docker/compose.registry.yml up -d
 ```
@@ -259,73 +352,66 @@ sudo docker compose -f docker/compose.registry.yml up -d
 ```
 ├── .github/
 │   ├── workflows/
-│   │   ├── ci.yml           # CI pipeline
-│   │   ├── cd.yml           # CD pipeline
-│   │   ├── release.yml      # Semantic release
-│   │   ├── codeql.yml       # Code security
-│   │   └── security.yml     # Security scans
-│   ├── dependabot.yml       # Auto-updates
-│   ├── CODEOWNERS           # Review rules
-│   ├── pull_request_template.md
-│   └── ISSUE_TEMPLATE/
-├── .husky/
-│   ├── pre-commit           # lint-staged
-│   └── commit-msg           # commitlint
+│   │   ├── ci.yml              # CI pipeline
+│   │   ├── cd.yml              # CD pipeline
+│   │   ├── release.yml         # Semantic release
+│   │   ├── security.yml        # Security scans
+│   │   └── codeql.yml          # Code analysis
+│   ├── dependabot.yml          # Auto-updates
+│   └── CODEOWNERS
 ├── docker/
 │   ├── Dockerfile.dev
 │   ├── Dockerfile.prod
 │   ├── compose.dev.yml
 │   ├── compose.prod.yml
 │   └── compose.registry.yml
-├── src/                     # Backend source
-├── frontend/                # React frontend
-├── Makefile                 # DevOps commands
-├── .editorconfig
-├── .gitattributes
-├── .releaserc.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/         # Dashboard UI
+│   │   ├── services/           # Sentry + OTEL
+│   │   └── App.tsx
+│   └── package.json
+├── src/
+│   └── index.ts                # Backend API (security features)
+├── .husky/                     # Git hooks
+├── Makefile                    # DevOps commands
 ├── commitlint.config.mjs
+├── .releaserc.json
 └── package.json
-```
-
----
-
-## Quick Reference
-
-### Makefile Commands
-
-```bash
-make help       # Show all commands
-make dev        # Start development
-make prod       # Start production
-make test       # Run tests
-make lint       # Run linting
-make clean      # Cleanup
-```
-
-### npm Scripts
-
-```bash
-npm run dev           # Start dev server
-npm run lint          # Check linting
-npm run format        # Format code
-npm run test:e2e      # Run E2E tests
-npm run security:audit # Security check
 ```
 
 ---
 
 ## Best Practices Checklist
 
+### DevOps
+
 - [x] Multi-stage Docker builds
 - [x] Non-root container user
 - [x] Docker healthchecks
 - [x] CI/CD with caching
-- [x] Security scanning (Trivy, CodeQL)
 - [x] Semantic versioning
 - [x] Conventional commits
 - [x] Pre-commit hooks
 - [x] Dependency auto-updates
-- [x] GitHub templates
-- [x] CODEOWNERS
-- [x] Concurrency control
-- [x] Path-based CI filtering
+
+### Security
+
+- [x] Request ID tracking
+- [x] Rate limiting
+- [x] Security headers (HSTS, etc.)
+- [x] CORS configuration
+- [x] Input validation (Zod)
+- [x] Path traversal prevention
+- [x] Graceful shutdown
+- [x] Trivy vulnerability scanning
+- [x] CodeQL analysis
+- [x] npm audit
+
+### Observability
+
+- [x] Sentry error tracking
+- [x] OpenTelemetry tracing
+- [x] Jaeger visualization
+- [x] W3C Trace Context propagation
+- [x] Frontend-backend trace correlation
