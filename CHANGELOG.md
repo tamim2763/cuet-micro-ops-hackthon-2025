@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.2.0...v1.3.0) (2025-12-12)
+
+### 🚀 Features
+
+- add frontend to CD pipeline and VM deployment ([91f599e](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/commit/91f599eecd8e344d727528fd602b336b97e61cda))
+
 ## [1.2.0](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.1.1...v1.2.0) (2025-12-12)
 
 ### 🚀 Features
