@@ -1,7 +1,9 @@
 name: delineate
 
 services:
+  # Backend API Service (Production)
   delineate-app:
+    container_name: delineate-backend
     build:
       context: ..
       dockerfile: docker/Dockerfile.prod
@@ -11,18 +13,87 @@ services:
       - ../.env
     environment:
       - NODE_ENV=production
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://delineate-jaeger:4318
       - S3_REGION=us-east-1
       - S3_ENDPOINT=http://delineate-minio:9000
       - S3_ACCESS_KEY_ID=minio_admin
       - S3_SECRET_ACCESS_KEY=minio_secret_key_2025
       - S3_BUCKET_NAME=downloads
       - S3_FORCE_PATH_STYLE=true
+    networks:
+      - delineate-network
     depends_on:
       delineate-minio:
         condition: service_healthy
+      delineate-jaeger:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
 
+  # Frontend UI Service (Production with Nginx)
+  delineate-frontend:
+    container_name: delineate-frontend
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=/api
+        - VITE_SENTRY_DSN=${VITE_SENTRY_DSN:-}
+        - VITE_SENTRY_ENVIRONMENT=production
+        - VITE_SENTRY_TRACES_SAMPLE_RATE=0.1
+        - VITE_OTEL_ENDPOINT=http://delineate-jaeger:4318/v1/traces
+        - VITE_OTEL_SERVICE_NAME=download-service-ui
+        - VITE_JAEGER_UI_URL=http://localhost:16686
+        - VITE_APP_VERSION=${APP_VERSION:-1.0.0}
+    ports:
+      - "80:80"
+    environment:
+      # Runtime environment variables (injected by entrypoint script)
+      - VITE_API_BASE_URL=/api
+      - VITE_SENTRY_DSN=${VITE_SENTRY_DSN:-}
+      - VITE_SENTRY_ENVIRONMENT=production
+      - VITE_SENTRY_TRACES_SAMPLE_RATE=0.1
+      - VITE_OTEL_ENDPOINT=http://delineate-jaeger:4318/v1/traces
+      - VITE_OTEL_SERVICE_NAME=download-service-ui
+      - VITE_JAEGER_UI_URL=http://localhost:16686
+      - VITE_APP_VERSION=${APP_VERSION:-1.0.0}
+    networks:
+      - delineate-network
+    depends_on:
+      delineate-app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  # MinIO Object Storage (Production)
   delineate-minio:
+    container_name: delineate-minio
     image: minio/minio:latest
     ports:
       - "9000:9000"
@@ -34,16 +105,30 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio-data:/data
+    networks:
+      - delineate-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
 
+  # MinIO Bucket Initialization
   delineate-minio-init:
+    container_name: delineate-minio-init
     image: minio/mc:latest
+    networks:
+      - delineate-network
     depends_on:
       delineate-minio:
         condition: service_healthy
@@ -54,5 +139,43 @@ services:
       done; mc mb minio/downloads --ignore-existing || true; echo 'Bucket created successfully'; "
     restart: "no"
 
+  # Jaeger Tracing Platform (Production)
+  delineate-jaeger:
+    container_name: delineate-jaeger
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "14318:4318" # OTLP HTTP receiver
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=memory
+      - LOG_LEVEL=warn
+      - QUERY_MAX_CLOCK_SKEW_ADJUSTMENT=0s
+    networks:
+      - delineate-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:16686/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+
+# Networks
+networks:
+  delineate-network:
+    driver: bridge
+    name: delineate-network
+
+# Volumes
 volumes:
   minio-data:
+    name: delineate-minio-data

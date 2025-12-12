@@ -165,11 +165,11 @@ Create custom spans for user interactions:
 
 ```typescript
 createSpan(
-  'user.download_clicked',
+  "user.download_clicked",
   async (span) => {
     await api.startDownload({ file_id: 12345 });
   },
-  { 'user.action': 'download' }
+  { "user.action": "download" },
 );
 ```
 

@@ -1,24 +1,26 @@
-import { trace, context, SpanStatusCode, Span } from '@opentelemetry/api';
-import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
-import { registerInstrumentations } from '@opentelemetry/instrumentation';
-import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
-import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { Resource } from '@opentelemetry/resources';
-import { SEMRESATTRS_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
-import { ZoneContextManager } from '@opentelemetry/context-zone';
+import { trace, context, SpanStatusCode, Span } from "@opentelemetry/api";
+import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
+import { registerInstrumentations } from "@opentelemetry/instrumentation";
+import { FetchInstrumentation } from "@opentelemetry/instrumentation-fetch";
+import { DocumentLoadInstrumentation } from "@opentelemetry/instrumentation-document-load";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { Resource } from "@opentelemetry/resources";
+import { SEMRESATTRS_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
+import { ZoneContextManager } from "@opentelemetry/context-zone";
 
-const OTEL_ENDPOINT = import.meta.env.VITE_OTEL_ENDPOINT || 'http://localhost:4318/v1/traces';
-const SERVICE_NAME = import.meta.env.VITE_OTEL_SERVICE_NAME || 'download-service-ui';
-const OTEL_ENABLED = import.meta.env.VITE_OTEL_ENABLED !== 'false';
+const OTEL_ENDPOINT =
+  import.meta.env.VITE_OTEL_ENDPOINT || "http://localhost:4318/v1/traces";
+const SERVICE_NAME =
+  import.meta.env.VITE_OTEL_SERVICE_NAME || "download-service-ui";
+const OTEL_ENABLED = import.meta.env.VITE_OTEL_ENABLED !== "false";
 
 let provider: WebTracerProvider | null = null;
-const tracer = trace.getTracer('download-service-ui', '1.0.0');
+const tracer = trace.getTracer("download-service-ui", "1.0.0");
 
 export function initTelemetry() {
   if (!OTEL_ENABLED) {
-    console.warn('OpenTelemetry disabled. Tracing will not be available.');
+    console.warn("OpenTelemetry disabled. Tracing will not be available.");
     return;
   }
 
@@ -27,9 +29,10 @@ export function initTelemetry() {
     const resource = Resource.default().merge(
       new Resource({
         [SEMRESATTRS_SERVICE_NAME]: SERVICE_NAME,
-        'service.version': '1.0.0',
-        'deployment.environment': import.meta.env.VITE_SENTRY_ENVIRONMENT || 'development',
-      })
+        "service.version": "1.0.0",
+        "deployment.environment":
+          import.meta.env.VITE_SENTRY_ENVIRONMENT || "development",
+      }),
     );
 
     // Create and configure the tracer provider
@@ -60,16 +63,16 @@ export function initTelemetry() {
           ],
           clearTimingResources: true,
           applyCustomAttributesOnSpan: (span, request) => {
-            span.setAttribute('http.request.url', request.url);
+            span.setAttribute("http.request.url", request.url);
           },
         }),
         new DocumentLoadInstrumentation(),
       ],
     });
 
-    console.log('OpenTelemetry initialized successfully');
+    console.log("OpenTelemetry initialized successfully");
   } catch (error) {
-    console.error('Failed to initialize OpenTelemetry:', error);
+    console.error("Failed to initialize OpenTelemetry:", error);
   }
 }
 
@@ -79,7 +82,7 @@ export function initTelemetry() {
 export function createSpan<T>(
   name: string,
   operation: (span: Span) => T | Promise<T>,
-  attributes?: Record<string, string | number | boolean>
+  attributes?: Record<string, string | number | boolean>,
 ): T | Promise<T> {
   return tracer.startActiveSpan(name, (span) => {
     try {
@@ -159,7 +162,10 @@ export function getCurrentSpanId(): string | undefined {
 /**
  * Add event to current span
  */
-export function addSpanEvent(name: string, attributes?: Record<string, string | number | boolean>) {
+export function addSpanEvent(
+  name: string,
+  attributes?: Record<string, string | number | boolean>,
+) {
   const activeSpan = trace.getActiveSpan();
   if (activeSpan) {
     activeSpan.addEvent(name, attributes);
@@ -185,7 +191,7 @@ export function getTraceparentHeader(): string | undefined {
 export async function shutdownTelemetry() {
   if (provider) {
     await provider.shutdown();
-    console.log('OpenTelemetry shutdown complete');
+    console.log("OpenTelemetry shutdown complete");
   }
 }
 
