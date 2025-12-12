@@ -1,3 +1,9 @@
+## [1.3.3](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.3.2...v1.3.3) (2025-12-12)
+
+### 🐛 Bug Fixes
+
+- add gettext package to frontend dockerfile for envsubst ([08786bd](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/commit/08786bda4023fcbfdc4c2437dfd938456372538f))
+
 ## [1.3.2](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025/compare/v1.3.1...v1.3.2) (2025-12-12)
 
 ### 🐛 Bug Fixes
