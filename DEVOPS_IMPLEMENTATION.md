@@ -1,12 +1,34 @@
 # DevOps & Security Implementation Guide
 
-Complete documentation of all implementations for the CUET Fest 2025 Hackathon project.
+Complete documentation of all implementations for the CUET Fest 2025 Hackathon.
+
+---
+
+## 🏆 Hackathon Challenges Completed
+
+| Challenge             | Points    | Status | Implementation                    |
+| --------------------- | --------- | ------ | --------------------------------- |
+| **1. S3 Storage**     | 15/15     | ✅     | MinIO in Docker, presigned URLs   |
+| **2. Architecture**   | 15/15     | ✅     | Async polling with Redis + BullMQ |
+| **3. CI/CD Pipeline** | 10/10     | ✅     | GitHub Actions → Docker Hub → VM  |
+| **4. Observability**  | 10/10     | ✅     | React + Sentry + OpenTelemetry    |
+| **Total**             | **50/50** | 🎉     |                                   |
+
+### 🌐 Live Demo URLs
+
+| Service         | URL                                                                     | Description                    |
+| --------------- | ----------------------------------------------------------------------- | ------------------------------ |
+| **Backend API** | http://36.255.71.63:3000                                                | Hono API with health endpoint  |
+| **API Health**  | http://36.255.71.63:3000/health                                         | Returns `{"status":"healthy"}` |
+| **API Docs**    | http://36.255.71.63:3000/docs                                           | Scalar OpenAPI documentation   |
+| **Frontend**    | http://36.255.71.63:5173                                                | React Observability Dashboard  |
+| **GitHub**      | [Repository](https://github.com/tamim2763/cuet-micro-ops-hackthon-2025) | Source code                    |
 
 ---
 
 ## Table of Contents
 
-1. [Hackathon Challenges Completed](#hackathon-challenges-completed)
+1. [Hackathon Challenges Completed](#-hackathon-challenges-completed)
 2. [Backend Security Features](#backend-security-features)
 3. [CI/CD Pipeline](#cicd-pipeline)
 4. [Docker Configuration](#docker-configuration)
